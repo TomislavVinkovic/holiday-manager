@@ -11,10 +11,11 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up() //ovdje imam bug s migracijama
     {
+
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_superuser');
+            $table->boolean('is_superuser')->default(false);
         });
     }
 
@@ -25,6 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('is_superuser');
+        });
     }
 };

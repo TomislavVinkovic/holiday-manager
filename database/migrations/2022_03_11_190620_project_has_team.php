@@ -16,7 +16,7 @@ return new class extends Migration
 
             $table->foreign('project_id')
                   ->references('id')
-                  ->on('project')
+                  ->on('projects')
                   ->onDelete('CASCADE');
             
             $table->foreign('team_id')

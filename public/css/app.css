@@ -11286,3 +11286,15 @@ textarea.form-control-lg {
     display: none !important;
   }
 }
+.card-icon {
+  font-size: 60px;
+}
+
+.card-url {
+  color: black;
+  text-decoration: none;
+}
+
+.card-url:hover {
+  color: black;
+}

@@ -14,13 +14,13 @@ class Team extends Model
 
     protected $fillable = ['name', 'description'];
     protected $table = 'teams';
-    
+
     public function users() {
         return $this->belongsToMany(User::class, 'team_has_user');
     }
 
     public function projects() {
-        return $this->belongsToMany(Project::class);
+        return $this->belongsToMany(Project::class, 'project_has_team');
     }
 
     public function logo() {
