@@ -52,6 +52,15 @@
                         <input name="date_of_birth" type="date" class="form-control" id="date_of_birth" maxlength="100" required />
                     </div>
 
+                    <div class="mb-3">
+                        <label for="roles" class="form-label">Roles(select at least one)</label>
+                        <select class="form-select" name="roles[]" id="roles" multiple>
+                            @foreach ($roles as $role)
+                                <option value="{{ $role->id }}">{{ $role->role }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Create user</button>
                 </form>
                 @if ($errors->any())

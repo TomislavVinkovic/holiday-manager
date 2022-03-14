@@ -18,6 +18,33 @@
                     </div>
                 </a>
             </div>
+
+            <div class="col-sm-12 col-md-3 mt-5">
+                <a class="card-url" href="{{ route('projectManagement') }}">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="card-body text-center">
+                                <i class="fa-solid fa-diagram-project card-icon p-5"></i>
+                                <p class="h3">Project management</p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-sm-12 col-md-3 mt-5">
+                <a class="card-url" href="{{ route('userManagement') }}">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="card-body text-center">
+                                <i class="fa-solid fa-user-group card-icon p-5"></i>
+                                <p class="h3">Team management</p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
         @endif
         
         @if (!$teams->isEmpty())
@@ -30,7 +57,7 @@
                         <div class="card-body">
                             <div class="card-body text-center">
                                 <i class="fa-solid fa-user-group card-icon p-5"></i>
-                                <p class="h3">Team management</p>
+                                <p class="h3">My teams</p>
                             </div>
                         </div>
                     </div>
@@ -48,7 +75,7 @@
                         <div class="card-body">
                             <div class="card-body text-center">
                                 <i class="fa-solid fa-diagram-project card-icon p-5"></i>
-                                <p class="h3">Project management</p>
+                                <p class="h3">My projects</p>
                             </div>
                         </div>
                     </div>

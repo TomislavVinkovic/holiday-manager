@@ -11295,6 +11295,16 @@ textarea.form-control-lg {
   text-decoration: none;
 }
 
+.table-url {
+  color: black;
+  text-decoration: none;
+}
+
+.table-url:hover {
+  color: black;
+  text-decoration: underline;
+}
+
 .card-url:hover {
   color: black;
 }

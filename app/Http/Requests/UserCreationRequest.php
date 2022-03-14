@@ -26,7 +26,8 @@ class UserCreationRequest extends FormRequest
             'first_name' => ['required', 'min:1', 'max:100'],
             'last_name' => ['required', 'min:1', 'max:100'],
             'residence' => ['required', 'min:1', 'max:100'],
-            'date_of_birth' => ['required', 'date']
+            'date_of_birth' => ['required', 'date'],
+            'roles' => ['required', 'array']
         ];
     }
 }

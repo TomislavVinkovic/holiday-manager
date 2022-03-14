@@ -46,6 +46,19 @@
                         <input name="date_of_birth" value="{{ $user->date_of_birth }}" type="date" class="form-control" id="date_of_birth" maxlength="100" required />
                     </div>
 
+                    <div class="mb-3">
+                        <label for="roles" class="form-label">Roles(select at least one)</label>
+                        <select class="form-select" name="roles[]" id="roles" multiple="multiple">
+                            @foreach ($roles as $role)
+                                @if ($user->roles->contains($role->id))
+                                    <option value="{{ $role->id }}" selected>{{ $role->role }}</option>
+                                @else
+                                    <option value="{{ $role->id }}">{{ $role->role }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Update user data</button>
                 </form>
                 @if ($errors->any())

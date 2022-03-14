@@ -13,6 +13,7 @@
                             <th>Username</th>
                             <th>Residence</th>
                             <th>E-mail</th>
+                            <th>Roles</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -31,6 +32,16 @@
                             <td>{{ $user->username }}</td>
                             <td>{{ $user->residence }}</td>
                             <td>{{ $user->email }}</td>
+                            <td>
+                                @foreach ($user->roles as $role)
+                                    
+                                    @if ($role !== $user->roles->last())
+                                        {{ $role->role }},
+                                    @else
+                                        {{ $role->role }}
+                                    @endif
+                                @endforeach
+                            </td>
                             <td><a class="btn btn-success" href="{{ route('userManagement.update', $user->id) }}">Edit</a></td>
                             <td>
                                 <form method="post" action="{{ route('userManagement.destroy') }}">
