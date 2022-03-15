@@ -11308,3 +11308,10 @@ textarea.form-control-lg {
 .card-url:hover {
   color: black;
 }
+
+.table-div {
+  position: relative;
+  max-height: 500px;
+  overflow: auto;
+  display: block;
+}

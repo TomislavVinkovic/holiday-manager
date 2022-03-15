@@ -14,9 +14,14 @@ class Team extends Model
 
     protected $fillable = ['name', 'description'];
     protected $table = 'teams';
+    protected $with = ['lead'];
 
     public function users() {
         return $this->belongsToMany(User::class, 'team_has_user');
+    }
+
+    public function lead() {
+        return $this->hasOne(User::class, 'id', 'lead_id');
     }
 
     public function projects() {

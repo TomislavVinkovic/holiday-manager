@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\ProjectManagementController;
+use App\Http\Controllers\TeamManagementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,4 +44,23 @@ Route::get('/projectmanagement/update/{id}', [ProjectManagementController::class
 Route::patch('/projectmanagement/update', [ProjectManagementController::class, 'patch'])->name('projectManagement.patch');
 
 Route::delete('/projectmanagement', [ProjectManagementController::class, 'destroy'])->name('projectManagement.destroy')
+    ->middleware('superuser');
+
+
+//team management
+Route::get('/teammanagement', [TeamManagementController::class, 'index'])->name('teamManagement');
+Route::get('/teammanagement/create', [TeamManagementController::class, 'create'])->name('teamManagement.create')
+    ->middleware('superuser');
+Route::get('/teammanagement/{id}', [TeamManagementController::class, 'show'])->name('teamManagement.show');
+
+Route::post('/teammanagement/create', [TeamManagementController::class, 'store'])->name('teamManagement.store')
+    ->middleware('superuser');
+
+Route::get('/teammanagement/update/{id}', [TeamManagementController::class, 'update'])->name('teamManagement.update');
+Route::patch('/teammanagement/update', [TeamManagementController::class, 'patch'])->name('teamManagement.patch');
+
+Route::delete('/teammanagement', [TeamManagementController::class, 'destroy'])->name('teamManagement.destroy')
+    ->middleware('superuser');
+
+Route::patch('/teammanagement/removemember', [TeamManagementController::class, 'removeMember'])->name('teamManagement.removeMember')
     ->middleware('superuser');

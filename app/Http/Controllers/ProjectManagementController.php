@@ -9,7 +9,6 @@ use App\Http\Requests\ProjectCreateRequest;
 use App\Http\Requests\ProjectUpdateRequest;
 use App\Models\Image;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Team;
 use Exception;
 
 class ProjectManagementController extends Controller

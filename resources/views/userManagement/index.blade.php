@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row p-10">
             <div class="col-12">
-                <div style="position: relative; max-height: 500px; overflow: auto; display:block;">
+                <div class="table-div">
                     <table class="table table-striped">
 
                         <tr>

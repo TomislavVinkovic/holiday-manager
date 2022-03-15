@@ -19,6 +19,8 @@ class UserManagementController extends Controller
         $this->middleware('superuser');
     }
 
+    //User::factory()->count(5)->create();
+
     public function index() {
         $users = User::where('id', '<>', Auth::user()->id)->get();
         return view('userManagement.index', ['users' => $users]);
