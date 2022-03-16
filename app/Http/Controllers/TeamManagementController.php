@@ -123,7 +123,7 @@ class TeamManagementController extends Controller
             $request->validate([
                 'id' => ['required', 'integer']
             ]);
-            
+            //pitati dinu za help oko brisanja many to many relacija
             Team::destroy($request->id);
             return redirect(route('teamManagement'));
         } catch (Exception $e) {
