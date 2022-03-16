@@ -5,17 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Team;
 use App\Http\Requests\TeamCreateRequest;
-use App\Models\Project;
-use Illuminate\Support\Facades\Storage;
-use App\Models\User;
 use App\Http\Requests\TeamUpdateRequest;
-use App\Models\TeamHasUser;
-use App\Models\Image;
-use Exception;
+use App\Http\Repositories\Teams\ITeamRepository;
+use App\Models\User;
+
 
 class TeamManagementController extends Controller
 {
-    public function __construct() {
+    
+    protected $teamRepository;
+    
+    public function __construct(ITeamRepository $teamRepository) {
+        $this->teamRepository = $teamRepository;
         $this->middleware('auth');
     }
 
@@ -36,102 +37,38 @@ class TeamManagementController extends Controller
     }
 
     public function store(TeamCreateRequest $request) {
-        try{
-            $valdiated = $request->validated();
-            $logo_id = Image::uploadAndCreateGetId($request->logo);
-            $team_id = Team::insertGetId([
-                'name' => $request->name,
-                'description' => $request->description,
-                'lead_id' => $request->lead,
-                'logo_id' => $logo_id
-            ]);
+        $validated = $request->validated();
 
-            TeamHasUser::create([
-                ['team_id' => $team_id, 'user_id' => $request->lead]
-            ]);
-
-            foreach($request->members as $member_id) {
-                TeamHasUser::create(
-                    ['team_id' => $team_id, 'user_id' => $member_id]
-                );
-            }
-
-            return redirect(route('teamManagement'), 201);
-
-        }catch(Exception $e) {
-            throw $e;
-        }
+        $this->teamRepository->createTeamWithMembers($request);
+        return redirect(route('teamManagement'), 201);
     }
 
     public function update($id) {
-        $team = Team::where('id', $id)->with(['users', 'lead'])->firstOrFail();
-        $otherUsers = User::doesntHave('team')->where('is_superuser', false)->get();
-        $membersAndOthers = $otherUsers->concat($team->users);
-        $max_id = User::max('id');
-        return view('teamManagement.update', ['team' => $team, 'allUsers' => $membersAndOthers, 'others' => $otherUsers, 'max_id' => $max_id]);
+        $data = $this->teamRepository->getUpdateInformation($id);
+        return view('teamManagement.update', $data);
     }
 
     public function patch(TeamUpdateRequest $request) {
-        try {
-            $validated = $request->validated();
-            $team = Team::where('id', $request->id)->with('users')->firstOrFail();
-            $team->update([
-                'name' => $request->name,
-                'description' => $request->description
-            ]);
-
-            if((int)$request->lead !== $team->lead_id) {
-                $teamHasLead = TeamHasUser::where([
-                    'team_id' => $team->id,
-                    'user_id' => $team->lead_id
-                ])->firstOrFail();
-                $teamHasLead->delete();
-                
-                TeamHasUser::create([
-                    'team_id' => $team->id, 'user_id' => $request->lead
-                ]);
-
-                $team->lead_id = $request->lead;
-                $team->save();
-            }
-
-            if($request->members !== null) {
-                foreach($request->members as $member_id) {
-                    TeamHasUser::create([
-                        'team_id' => $team->id, 'user_id' => $member_id
-                    ]);
-                }
-            }
-
-            if($request->logo !== null) { //ovo imam i kod projekta, znam.. to cu rjesiti kad uvedem repository pattern kasnije :)
-                Storage::delete($team->logo->file_path);
-                $old_img = $team->logo_id;
-                $team->logo_id = Image::uploadAndCreateGetId($request->logo);
-                $team->save();
-                Image::destroy($old_img);
-            }
-
-            return $this->show($team->id);
-            die;
-        } catch (Exception $e) {
-            throw $e;
-        }
+        $validated = $request->validated();
+        $id = $this->teamRepository->patchTeam($request);
+        return redirect(route('teamManagement.show', $id));
     }
 
     public function destroy(Request $request) {
-        try {
-            $request->validate([
-                'id' => ['required', 'integer']
-            ]);
-            //pitati dinu za help oko brisanja many to many relacija
-            Team::destroy($request->id);
-            return redirect(route('teamManagement'));
-        } catch (Exception $e) {
-            throw $e;
-        }
+        $request->validate([
+            'id' => ['required', 'integer']
+        ]);
+        $this->teamRepository->destroyTeamById($request->id);
+        return redirect(route('teamManagement'));
     }
 
-    public function removeMember($id) {
-        return;
+    public function removeMember(Request $request) {
+        $request->validate([
+            'team_id' => ['required', 'integer'],
+            'user_id' => ['required', 'integer']
+        ]);
+        
+        $id = $this->teamRepository->removeMember($request->team_id, $request->user_id);
+        return redirect(route('teamManagement.show', $id));
     }
 }

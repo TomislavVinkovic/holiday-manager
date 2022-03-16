@@ -68,7 +68,8 @@
                                     <form method="post" action="{{ route('teamManagement.removeMember') }}">
                                         @csrf
                                         @method('PATCH')
-                                        <input type="hidden" name='id' value={{ $user->id }}>
+                                        <input type="hidden" name='team_id' value={{ $team->id }}>
+                                        <input type="hidden" name='user_id' value={{ $user->id }}>
                                         <button type="submit" class="btn btn-danger" href="#">Remove from team</button>
                                     </form>
                                 </td>

@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Repositories\Projects\IProjectRepository;
 use Illuminate\Http\Request;
 use App\Models\Project;
 use App\Models\User;
 use App\Http\Requests\ProjectCreateRequest;
 use App\Http\Requests\ProjectUpdateRequest;
-use App\Models\Image;
-use Illuminate\Support\Facades\Storage;
-use Exception;
 
 class ProjectManagementController extends Controller
 {
 
-    public function __construct() {
+    protected $projectRepository;
+
+    public function __construct(IProjectRepository $projectRepository) {
+        $this->projectRepository = $projectRepository;
         $this->middleware('auth');
     }
 
@@ -35,16 +36,9 @@ class ProjectManagementController extends Controller
 
     public function store(ProjectCreateRequest $request) {
         $validated = $request->validated();
+        $this->projectRepository->createProject($request);
 
-        $logo_id = Image::uploadAndCreateGetId($request->logo);
-        Project::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'lead_id' => $request->lead,
-            'logo_id' => $logo_id
-        ]);
-
-        return redirect('projectmanagement', 201);
+        return redirect(route('projectManagement'), 201);
     }
 
     public function update($id) {
@@ -60,35 +54,16 @@ class ProjectManagementController extends Controller
 
     public function patch(ProjectUpdateRequest $request) {
         $validated = $request->validated();
-        $project = Project::findOrFail($request->id);
-        $project->update([
-            'name' => $request->name,
-            'description' => $request->description,
-            'lead_id' => $request->lead
-        ]);
-        if($request->logo !== null) {
-            Storage::delete($project->logo->file_path);
-            $old_img = $project->logo_id;
-            $project->logo_id = Image::uploadAndCreateGetId($request->logo);
-            $project->save();
-            Image::destroy($old_img);
-        }
+        $id = $this->projectRepository->patchProject($request); //iskoristiti repo
 
-        return $this->show($project->id);
-        die;
+        return redirect(route('projectManagement.show', $id));
     }
 
     public function destroy(Request $request) {
-        try {
-            $request->validate([
-                'id' => 'required|integer'
-            ]);
-            $project = Project::where('id', $request->id)->with('logo')->firstOrFail();
-            Storage::delete($project->logo->file_path);
-            $project->delete();
-            return redirect('projectmanagement');
-        }catch(Exception $e) {
-            throw $e;
-        }
+        $request->validate([
+            'id' => 'required|integer'
+        ]);
+        $this->projectRepository->destroyProject($request->id); //iskoristiti repo
+        return redirect(route('projectManagement'));
     }
 }
