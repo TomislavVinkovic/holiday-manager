@@ -8,6 +8,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\VacationRequest;
 use App\Models\Role;
+use App\Models\Project;
+use App\Models\Team;
 
 class User extends Authenticatable
 {

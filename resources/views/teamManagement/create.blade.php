@@ -6,10 +6,18 @@
             <div class="col-md-2 col-sm-12"></div>
             <div class="col-md-8 col-sm-12">
 
-                <h1>New Team</h1>
+                @if (!$project)
+                    <h1>New Team</h1>
+                @else
+                    <h1>New Team for {{ $project->name }}</h1>
+                @endif
 
                 <form method="post" enctype="multipart/form-data" action="{{ route('teamManagement.store') }}">
                     @csrf
+
+                    @if ($project !== null)
+                        <input type="hidden" value="{{ $project->id }}" name="project" />
+                    @endif
 
                     <div class="mb-3">
                         <label for="name" class="form-label">Name</label>

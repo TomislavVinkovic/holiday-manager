@@ -14,7 +14,7 @@ class Team extends Model
 
     protected $fillable = ['name', 'description', 'lead_id', 'logo_id'];
     protected $table = 'teams';
-    protected $with = ['lead'];
+    protected $with = ['lead']; //privremeno rjesenje je da projekte stavim ovdje
 
     public function users() {
         return $this->belongsToMany(User::class, 'team_has_user');

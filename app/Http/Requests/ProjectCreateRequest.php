@@ -13,10 +13,7 @@ class ProjectCreateRequest extends FormRequest
      * @return bool
      */
     public function authorize() {
-        if(!Auth::user()->is_superuser) {
-            return false;
-        }
-        return true;
+        return true; //imam vec middleware koji se brine o ovome
     }
 
     /**

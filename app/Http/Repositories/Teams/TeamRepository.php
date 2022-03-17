@@ -5,11 +5,10 @@ namespace App\Http\Repositories\Teams;
 use App\Http\Requests\TeamCreateRequest;
 use App\Http\Requests\TeamUpdateRequest;
 use App\Http\Repositories\Teams\ITeamRepository;
-use App\Models\Image;
 use App\Models\Team;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Repositories\Images\AbsImageRepository;
+use Illuminate\Support\Facades\Auth;
 use Exception;
 
 class TeamRepository implements ITeamRepository {
@@ -20,10 +19,30 @@ class TeamRepository implements ITeamRepository {
         $this->imageRepository = $imageRepository;
     }
 
+    public function getTeamById(int $id, array $with = []) {
+        $team = Team::where('id', $id)->with($with)->firstOrFail();
+        if(Auth::user()->is_superuser || $team->lead_id === Auth::user()->id) {
+            return $team;
+        }
+        else {
+            abort(401);
+        }
+    }
+
+    public function getTeams() {
+        if(Auth::user()->is_superuser) {
+            return Team::all();
+        }
+        else {
+            $teams = Team::where('lead_id', Auth::user()->id)->get();
+            return $teams;
+        }
+        
+    }
+
     public function getUpdateInformation(int $id): array {
         try {
-
-            $team = Team::where('id', $id)->with(['users', 'lead'])->firstOrFail();
+            $team = $this->getTeamById($id, ['users']);
             $otherUsers = User::doesntHave('team')->where('is_superuser', false)->get();
             $membersAndOthers = $otherUsers->concat($team->users);
             $max_id = User::max('id');
@@ -37,9 +56,7 @@ class TeamRepository implements ITeamRepository {
     }
 
     public function createTeamWithMembers(TeamCreateRequest $request): Team {
-
         try {
-            //kreiranje slike cu napraviti preko repozitorija
             $logo = $this->imageRepository->createImage($request->logo);
             $team = Team::create([
                 'name' => $request->name,
@@ -49,8 +66,14 @@ class TeamRepository implements ITeamRepository {
             ]);
             $team->users()->attach($request->lead);
             $team->users()->attach($request->members);
-            $team->save();
 
+            if(!$request->project) {
+                $team->save();
+            }
+            else {
+                $team->projects()->attach($request->project);
+                $team->save();
+            }
             return $team;
 
         } catch (Exception $e) {
@@ -62,14 +85,16 @@ class TeamRepository implements ITeamRepository {
         
         try {
             
-            $team = Team::where('id', $request->id)->with(['users', 'logo'])->firstOrFail();
+            $team = $this->getTeamById($request->id, ['users', 'logo']);
             $team->update([
                 'name' => $request->name,
                 'description' => $request->description
             ]);
 
             if((int)$request->lead !== $team->lead_id) {
-                $team->users()->attach($request->lead);
+                if(!$team->users->contains($request->lead)) {
+                    $team->users()->attach($request->lead);
+                }
                 $team->lead_id = $request->lead;
             }
 

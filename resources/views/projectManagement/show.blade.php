@@ -26,14 +26,17 @@
             <div class="col-sm-12 col-md-2">
                 <a class="btn btn-success" href="{{ route('projectManagement.update', $project->id) }}">Manage project</a>
             </div>
-            <div class="col-sm-12 col-md-2">
-                <form method="post" action="{{ route('projectManagement.destroy') }}">
-                    @csrf
-                    @method('DELETE')
-                    <input type="hidden" name='id' value={{ $project->id }}>
-                    <button type="submit" class="btn btn-danger">Delete project</button>
-                </form>
-            </div>
+
+            @if (Auth::user()->is_superuser)
+                <div class="col-sm-12 col-md-2">
+                    <form method="post" action="{{ route('projectManagement.destroy') }}">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name='id' value={{ $project->id }}>
+                        <button type="submit" class="btn btn-danger">Delete project</button>
+                    </form>
+                </div>
+            @endif
         </div>
 
         <div class="row p-10 mt-5">
@@ -45,8 +48,20 @@
                     @if ($project->teams->isEmpty())
                         <li class="list-group-item"> This project currently has no teams assigned to it</li>
                     @else
-                        @foreach ($teams as $team)
-                            <li class="list-group-item"> {{ $team->name }}</li>
+                        @foreach ($project->teams as $team)
+                            <li class="list-group-item">
+                                 {{ $team->name }}
+                                 <form action="{{ route('projectManagement.removeTeam') }}" method="post" class="d-inline-block" style="margin-left: 10px;">
+                                     @csrf
+                                     @method('PATCH')
+
+                                    <input type="hidden" value="{{ $team->id }}" name="team_id">
+                                    <input type="hidden" value="{{ $project->id }}" name="project_id">
+
+                                    <button type="submit" class="btn btn-danger"> <i class="fa-solid fa-trash" style="color: white"></i> </button>
+
+                                 </form>
+                            </li>
                         @endforeach
                     @endif
                 </ul>
@@ -55,11 +70,13 @@
 
         <div class="row p-10 mt-4">
             <div class="col-md-1 d-none d-md-block"></div>
+            @if (Auth::user()->is_superuser)
+                <div class="col-sm-12 col-md-3">
+                    <a class="btn btn-primary" href="{{ route('teamManagement.create', $project->id) }}">Create a new team for this project</a>
+                </div>
+            @endif
             <div class="col-sm-12 col-md-3">
-                <a class="btn btn-primary" href="#">Create a new team for this project</a>
-            </div>
-            <div class="col-sm-12 col-md-3">
-                <a class="btn btn-secondary" href="#">Add an existing team</a>
+                <a class="btn btn-secondary" href="{{ route('projectManagement.addTeams', $project->id) }}">Add existing teams to the project</a>
             </div>
         </div>
 

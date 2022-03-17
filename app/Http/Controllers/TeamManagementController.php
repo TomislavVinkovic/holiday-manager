@@ -7,7 +7,9 @@ use App\Models\Team;
 use App\Http\Requests\TeamCreateRequest;
 use App\Http\Requests\TeamUpdateRequest;
 use App\Http\Repositories\Teams\ITeamRepository;
+use App\Models\Project;
 use App\Models\User;
+use App\Http\Requests\DeleteTeamProjectRequest;
 
 
 class TeamManagementController extends Controller
@@ -21,18 +23,24 @@ class TeamManagementController extends Controller
     }
 
     public function index() {
-        $teams = Team::all();
+        $teams = $this->teamRepository->getTeams();
         return view('teamManagement.index', ['teams' => $teams]);
     }
 
-    public function create() {
-        $users = User::doesntHave('team')->get();
+    public function create($project_id = null) {
+        $users = User::where('is_superuser', false)->doesntHave('team')->get();
         $max_id = User::max('id');
-        return view('teamManagement.create', ['users' => $users, 'max_id' => $max_id]);
+        if($project_id === null) {
+            return view('teamManagement.create', ['users' => $users, 'max_id' => $max_id, 'project' => null]);
+        }
+        else {
+            $project = Project::findOrFail($project_id);
+            return view('teamManagement.create', ['users' => $users, 'max_id' => $max_id, 'project' => $project]);
+        }
     }
 
     public function show($id) {
-        $team = Team::where('id', $id)->with(['logo', 'users', 'projects'])->firstOrFail();
+        $team = $this->teamRepository->getTeamById($id, ['logo', 'users', 'projects']);
         return view('teamManagement.show', ['team' => $team]);
     }
 
@@ -54,10 +62,8 @@ class TeamManagementController extends Controller
         return redirect(route('teamManagement.show', $id));
     }
 
-    public function destroy(Request $request) {
-        $request->validate([
-            'id' => ['required', 'integer']
-        ]);
+    public function destroy(DeleteTeamProjectRequest $request) {
+        $validated = $request->validated();
         $this->teamRepository->destroyTeamById($request->id);
         return redirect(route('teamManagement'));
     }

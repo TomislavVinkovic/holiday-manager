@@ -4,6 +4,7 @@
 <div class="container">
     <div class="row p-10">
 
+        <!-- DIZAJN CU FIXAT KASNIJE -->
         @if (Auth::user()->is_superuser)
             
             <div class="col-sm-12 col-md-3 mt-5">
@@ -52,7 +53,7 @@
             <div class="col-md-1 col-sm-12"></div>
             
             <div class="col-sm-12 col-md-3 mt-5">
-                <a href="#">
+                <a class="card-url" href="{{ route('teamManagement') }}">
                     <div class="card">
                         <div class="card-body">
                             <div class="card-body text-center">
@@ -70,7 +71,7 @@
             <div class="col-md-1 col-sm-12"></div>
 
             <div class="col-sm-12 col-md-3 mt-5">
-                <a href="#">
+                <a class="card-url" href="{{ route('projectManagement') }}">
                     <div class="card">
                         <div class="card-body">
                             <div class="card-body text-center">
@@ -87,7 +88,7 @@
     @if (!$projects->isEmpty() || !$teams->isEmpty())
         <div class="row p-10">
             <div class="col-sm-12 col-md-3 mt-5">
-                <a href="#">
+                <a class="card-url" href="{{ route('vacationRequestManagement') }}">
                     <div class="card">
                         <div class="card-body">
                             <div class="card-body text-center">
@@ -99,6 +100,11 @@
                 </a>
             </div>
         </div>
+    @endif
+
+    @if ($projects->isEmpty())
+        <a href="{{ route('vacationRequestManagement.create') }}">I want to go on vacation please!</a><br />
+        <a href="#">My vacation requests</a>
     @endif
 
 </div>

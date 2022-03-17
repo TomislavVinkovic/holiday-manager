@@ -12,7 +12,7 @@ class SuperUser
     public function handle(Request $request, Closure $next)
     {
         if(!Auth::user()->is_superuser) {
-            return route('home');
+            abort(401);
         }
         return $next($request);
     }

@@ -12,19 +12,11 @@ class TeamCreateRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
-    {
-        if(!Auth::user()->is_superuser) {
-            return false;
-        }
-        return true;
+    public function authorize() {
+        return true; //imam vec middleware koji se brine o ovome
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
+
     public function rules()
     {
         return [
@@ -32,7 +24,8 @@ class TeamCreateRequest extends FormRequest
             'description' => ['string'],
             'lead' => ['required', 'integer'],
             'members' => ['required', 'array'],
-            'logo' => ['required', 'mimes:jpg,jpeg,png,svg,bmp']
+            'logo' => ['required', 'mimes:jpg,jpeg,png,svg,bmp'],
+            'project' => ['nullable', 'integer']
         ];
     }
 }

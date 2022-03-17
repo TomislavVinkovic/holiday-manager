@@ -26,14 +26,16 @@
             <div class="col-sm-12 col-md-2">
                 <a class="btn btn-success" href="{{ route('teamManagement.update', $team->id) }}">Manage team</a>
             </div>
-            <div class="col-sm-12 col-md-2">
-                <form method="post" action="{{ route('teamManagement.destroy') }}">
-                    @csrf
-                    @method('DELETE')
-                    <input type="hidden" name='id' value={{ $team->id }}>
-                    <button type="submit" class="btn btn-danger">Delete team</button>
-                </form>
-            </div>
+            @if (Auth::user()->is_superuser)
+                <div class="col-sm-12 col-md-2">
+                    <form method="post" action="{{ route('teamManagement.destroy') }}">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name='id' value={{ $team->id }}>
+                        <button type="submit" class="btn btn-danger">Delete team</button>
+                    </form>
+                </div>
+            @endif
         </div>
 
         <div class="row p-10 mt-5">
