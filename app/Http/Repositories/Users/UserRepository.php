@@ -7,9 +7,27 @@ use App\Http\Requests\UserCreationRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Exception;
+use Illuminate\Support\Collection;
 
 class UserRepository implements IUserRepository {
+
+    public function getUserById(int $id, array $with = []): User {
+        return User::where('id', $id)->with($with)->firstOrFail();
+    }
+
+    public function getAllNonSuperUsers(): Collection {
+        return User::where('id', '<>', Auth::user()->id)->get();
+    }
+
+    public function getUsersWithNoTeam(array $with = []): Collection {
+        return User::where('is_superuser', false)->doesntHave('team')->with($with)->get();
+    }
+
+    public function getMaxId(): int {
+        return User::max('id');
+    }
 
     public function createUserWithRoles(UserCreationRequest $request): User {
         try {
@@ -40,7 +58,7 @@ class UserRepository implements IUserRepository {
     public function patchUser(UserUpdateRequest $request): void {
 
         try {
-            $user = User::findOrFail($request->id);
+            $user = $this->getUserById($request->id);
             $user->update(
                 [
                     'username' => $request->username,
@@ -72,7 +90,7 @@ class UserRepository implements IUserRepository {
 
     public function destroyUserById(int $id): void {
         try {
-            $user = User::findOrFail($id);
+            $user = $this->getUserById($id);
             $user->roles()->detach();
             $user->delete();
             

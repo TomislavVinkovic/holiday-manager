@@ -5,21 +5,22 @@ namespace App\Http\Repositories\Teams;
 use App\Http\Requests\TeamCreateRequest;
 use App\Http\Requests\TeamUpdateRequest;
 use App\Http\Repositories\Teams\ITeamRepository;
+use App\Http\Repositories\Users\IUserRepository;
 use App\Models\Team;
-use App\Models\User;
 use App\Http\Repositories\Images\AbsImageRepository;
+use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
 use Exception;
 
 class TeamRepository implements ITeamRepository {
 
-    protected $imageRepository;
+    public function __construct(
+        protected AbsImageRepository $imageRepository,
+        protected IUserRepository $userRepository
+    ) {}
 
-    public function __construct(AbsImageRepository $imageRepository) {
-        $this->imageRepository = $imageRepository;
-    }
-
-    public function getTeamById(int $id, array $with = []) {
+    public function getTeamById(int $id, array $with = []): Team {
         $team = Team::where('id', $id)->with($with)->firstOrFail();
         if(Auth::user()->is_superuser || $team->lead_id === Auth::user()->id) {
             return $team;
@@ -29,7 +30,7 @@ class TeamRepository implements ITeamRepository {
         }
     }
 
-    public function getTeams() {
+    public function getTeams(): Collection {
         if(Auth::user()->is_superuser) {
             return Team::all();
         }
@@ -37,18 +38,23 @@ class TeamRepository implements ITeamRepository {
             $teams = Team::where('lead_id', Auth::user()->id)->get();
             return $teams;
         }
-        
+    }
+
+    public function getTeamsNotInProject(Project $project) {
+        $teams = Team::whereDoesntHave('projects', function ($q) use ($project) {
+            $q->where('projects.id', '=', $project->id);
+        })->get();
+        return $teams;
     }
 
     public function getUpdateInformation(int $id): array {
         try {
             $team = $this->getTeamById($id, ['users']);
-            $otherUsers = User::doesntHave('team')->where('is_superuser', false)->get();
+            $otherUsers = $this->userRepository->getUsersWithNoTeam();
             $membersAndOthers = $otherUsers->concat($team->users);
-            $max_id = User::max('id');
+            $max_id = $this->userRepository->getMaxId();
             
-            $data = ['team' => $team, 'allUsers' => $membersAndOthers, 'others' => $otherUsers, 'max_id' => $max_id];
-            return $data;
+            return ['team' => $team, 'allUsers' => $membersAndOthers, 'others' => $otherUsers, 'max_id' => $max_id];
 
         } catch (Exception $e) {
             throw $e;

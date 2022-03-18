@@ -104,7 +104,7 @@
 
     @if ($projects->isEmpty())
         <a href="{{ route('vacationRequestManagement.create') }}">I want to go on vacation please!</a><br />
-        <a href="#">My vacation requests</a>
+        <a href="{{ route('vacationRequestManagement') }}">My vacation requests</a>
     @endif
 
 </div>

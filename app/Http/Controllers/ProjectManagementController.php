@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Repositories\Projects\IProjectRepository;
+use App\Http\Repositories\Teams\ITeamRepository;
+use App\Http\Repositories\Users\IUserRepository;
 use App\Http\Requests\ProjectAddExistingTeamsRequest;
-use Illuminate\Http\Request;
-use App\Models\Project;
 use App\Models\User;
 use App\Http\Requests\ProjectCreateRequest;
 use App\Http\Requests\ProjectRemoveTeamRequest;
@@ -16,11 +16,11 @@ use App\Http\Requests\DeleteTeamProjectRequest;
 class ProjectManagementController extends Controller
 {
 
-    protected $projectRepository;
-    protected $teamRepository;
-
-    public function __construct(IProjectRepository $projectRepository) {
-        $this->projectRepository = $projectRepository;
+    public function __construct(
+        protected IProjectRepository $projectRepository,
+        protected ITeamRepository $teamRepository,
+        protected IUserRepository $userRepository
+    ) {
         $this->middleware('auth');
     }
 
@@ -35,7 +35,7 @@ class ProjectManagementController extends Controller
     }
 
     public function create() {
-        $users = User::where('is_superuser', false)->get();
+        $users = $this->userRepository->getAllNonSuperUsers();
         return view('projectManagement.create', ['users' => $users]);
     }
 
@@ -48,7 +48,7 @@ class ProjectManagementController extends Controller
 
     public function update($id) {
         $project = $this->projectRepository->getProjectById($id);
-        $users = User::all();
+        $users = $this->userRepository->getAllNonSuperUsers();
         return view('projectManagement.update',
             [
                 'project' => $project,
@@ -72,9 +72,7 @@ class ProjectManagementController extends Controller
 
     public function addTeams($id) {
         $project = $this->projectRepository->getProjectById($id, ['teams']);
-        $teams = Team::whereDoesntHave('projects', function ($q) use ($project) {
-            $q->where('projects.id', '=', $project->id);
-        })->get();
+        $teams = $this->teamRepository->getTeamsNotInProject($project);
         return view('projectManagement.addTeams', ['project' => $project, 'teams' => $teams]);
         
     }

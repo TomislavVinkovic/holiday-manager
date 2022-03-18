@@ -55,6 +55,7 @@ Route::delete('/projectmanagement', [ProjectManagementController::class, 'destro
 
 //team management
 Route::get('/teammanagement', [TeamManagementController::class, 'index'])->name('teamManagement');
+
 Route::get('/teammanagement/create/{project_id?}', [TeamManagementController::class, 'create'])->name('teamManagement.create')
     ->middleware('superuser');
 
@@ -73,13 +74,12 @@ Route::patch('/teammanagement/removemember', [TeamManagementController::class, '
 Route::get('/teammanagement/{id}', [TeamManagementController::class, 'show'])->name('teamManagement.show');
 
 
-
 //VACATION REQUESTS
-Route::get('/vacationRequests', [VacationRequestManagementController::class, 'index'])->name('vacationRequestManagement');
-Route::get('/vacationRequests/create', [VacationRequestManagementController::class, 'create'])->name('vacationRequestManagement.create');
-Route::post('/vacationRequests/create', [VacationRequestManagementController::class, 'store'])->name('vacationRequestManagement.store');
-Route::get('/vacationRequests/update/{id}', [VacationRequestManagementController::class, 'update'])->name('vacationRequestManagement.update');
-Route::patch('/vacationRequests/update', [VacationRequestManagementController::class, 'patch'])->name('vacationRequestManagement.patch');
-Route::delete('/vacationRequests', [VacationRequestManagementController::class, 'destroy'])->name('vacationRequestManagement.destroy');
-
-Route::get('/vacationRequests/{id}', [VacationRequestManagementController::class, 'show'])->name('vacationRequestManagement.show');
+Route::get('/vacationrequests', [VacationRequestManagementController::class, 'index'])->name('vacationRequestManagement');
+Route::get('/vacationrequests/create', [VacationRequestManagementController::class, 'create'])->name('vacationRequestManagement.create');
+Route::post('/vacationrequests/create', [VacationRequestManagementController::class, 'store'])->name('vacationRequestManagement.store');
+Route::get('/vacationrequests/update/{id}', [VacationRequestManagementController::class, 'update'])->name('vacationRequestManagement.update');
+Route::patch('/vacationrequests/update', [VacationRequestManagementController::class, 'patch'])->name('vacationRequestManagement.patch');
+Route::delete('/vacationrequests', [VacationRequestManagementController::class, 'destroy'])->name('vacationRequestManagement.destroy');
+Route::patch('/vacationrequests/approve', [VacationRequestManagementController::class, 'approve'])->name('vacationRequestManagement.approval');
+Route::get('/vacationrequests/{id}', [VacationRequestManagementController::class, 'show'])->name('vacationRequestManagement.show');

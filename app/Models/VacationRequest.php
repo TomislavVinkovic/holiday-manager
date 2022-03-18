@@ -12,7 +12,7 @@ class VacationRequest extends Model
 
     protected $table = 'vacation_requests';
     protected $with = ['approvals', 'user'];
-    protected $fillable = ['start_date', 'end_date', 'approved', 'description'];
+    protected $fillable = ['start_date', 'end_date', 'approved', 'description', 'user_id'];
 
     public function user() {
         return $this->belongsTo(User::class);
