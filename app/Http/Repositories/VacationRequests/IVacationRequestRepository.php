@@ -14,6 +14,7 @@ interface IVacationRequestRepository {
     public function createVacationRequest(CreateVacationRequestRequest $request): VacationRequest;
     public function patchVacationRequest(UpdateVacationRequestRequest $request): VacationRequest;
     public function destroyVacationRequest(int $id): void;
+    public function getCreateData(): array;
     public function approveVacationRequest(VacationRequestApprovalRequest $request): void;
     
 } 

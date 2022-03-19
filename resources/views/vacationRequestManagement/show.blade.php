@@ -65,6 +65,26 @@
                         @endif
                     @endforeach
                 </table>
+                @if ($vacationRequest->user_id === Auth::user()->id)
+                    @if ($vacationRequest->approved && Carbon\Carbon::parse($vacationRequest->start_date)->lte(Carbon\Carbon::now()) && Carbon\Carbon::parse($vacationRequest->end_date)->gte(Carbon\Carbon::now()))
+                        <div class="alert alert-success">
+                            Hooray! You are on vacation right now! Log off and enjoy yourself!
+                        </div>
+                    @elseif($vacationRequest->approved)
+                        <div class="alert alert-success">
+                            Hooray! You are on vacation from {{ $vacationRequest->start_date }} to {{ $vacationRequest->end_date }}
+                        </div>
+                    @elseif(!$vacationRequest->approvals->where('approved', false)->isEmpty() && $vacationRequest->approvals->where('pending', true)->isEmpty())
+                        <div class="alert alert-danger">
+                            Your request was denied by some leads!
+                        </div>
+                    @elseif (!$vacationRequest->approvals->where('pending', true)->isEmpty())
+                        <div class="alert alert-warning">
+                            There are still some approvals that are pending.
+                        </div>
+                    @endif
+
+                @endif
             </div>
 
         </div>

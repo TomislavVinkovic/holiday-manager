@@ -7,6 +7,7 @@ use App\Http\Repositories\VacationRequests\IVacationRequestRepository;
 use App\Http\Requests\CreateVacationRequestRequest;
 use App\Http\Requests\VacationRequestApprovalRequest;
 use App\Http\Requests\UpdateVacationRequestRequest;
+use Illuminate\Support\Facades\Auth;
 
 class VacationRequestManagementController extends Controller {
     
@@ -19,11 +20,14 @@ class VacationRequestManagementController extends Controller {
 
     public function show($id) {
         $vacationRequest = $this->vacationRequestRepository->getVacationRequestById($id);
-        return view('vacationRequestManagement.show', ['vacationRequest' => $vacationRequest]);
+        return view('vacationRequestManagement.show', [
+            'vacationRequest' => $vacationRequest,
+        ]);
     }
 
     public function create() {
-        return view('vacationRequestManagement.create');
+        $data = $this->vacationRequestRepository->getCreateData();
+        return view('vacationRequestManagement.create', $data);
     }
 
     public function store(CreateVacationRequestRequest $request) {
@@ -47,6 +51,6 @@ class VacationRequestManagementController extends Controller {
     public function approve(VacationRequestApprovalRequest $request) {
         $validated = $request->validated();
         $this->vacationRequestRepository->approveVacationRequest($request);
-        return redirect(route('vacationRequestManagement.show', $request->vacationRequest));
+        return redirect(route('vacationRequestManagement'));
     }
 }

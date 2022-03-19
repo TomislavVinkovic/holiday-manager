@@ -10,6 +10,7 @@ use App\Http\Requests\VacationRequestApprovalRequest;
 use Exception;
 use App\Models\VacationRequestApproval;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 
 class VacationRequestRepository implements IVacationRequestRepository {
 
@@ -43,6 +44,7 @@ class VacationRequestRepository implements IVacationRequestRepository {
         try {
             $vacationRequests = VacationRequest::whereHas('approvals', function ($q) {
                 $q->where('lead_id', Auth::user()->id);
+                $q->where('pending', true);
             })->get(); //za leadove
             $personalVacationRequests = VacationRequest::where('user_id', Auth::user()->id)->get();
             
@@ -53,6 +55,25 @@ class VacationRequestRepository implements IVacationRequestRepository {
 
         } catch(Exception $e) {
             throw $e;
+        }
+    }
+
+    public function getCreateData(): array {
+        $activeRequest = VacationRequest::where('user_id', Auth::user()->id)
+                                ->where('approved', true)->latest()->first();
+        if(!$activeRequest) {
+            return [
+                'on_vacation' => false,
+                'min_start_date' => Carbon::now()->startOfWeek()->addWeek()->toDateString(),
+                'min_end_date' => Carbon::now()->startOfWeek()->addWeek()->addDays(1)->toDateString()
+            ];
+        }
+        else {
+            return [
+                'on_vacation' => true,
+                'min_start_date' => Carbon::parse($activeRequest->end_date)->startOfWeek()->addWeek()->toDateString(),
+                'min_end_date' => Carbon::parse($activeRequest->end_date)->startOfWeek()->addWeek()->addDays(1)->toDateString()
+            ];
         }
     }
 
@@ -112,10 +133,21 @@ class VacationRequestRepository implements IVacationRequestRepository {
             $vacationRequestApproval->approved = true;
             $vacationRequestApproval->pending = false;
             $vacationRequestApproval->save();
+            $vacationRequest->save();
 
             //if there are no requests left to approve
-            if(!$vacationRequest->approvals->where('approved', 'false')) {
+            if($vacationRequest->approvals->where('approved', false)->isEmpty()) {
                 $vacationRequest->approved = true;
+                $vacationRequest->save();
+
+                $start_date = Carbon::create($vacationRequest->start_date);
+                $end_date = Carbon::create($vacationRequest->end_date);
+                $diff = $start_date->diffInDaysFiltered(function (Carbon $date) {
+                    return !$date->isWeekend(); //oduzmi mu dane odmora ne brojeci vikende
+                }, $end_date);
+
+                $vacationRequest->user->available_vacation_days -= $diff;
+                $vacationRequest->user->save();
                 $vacationRequest->save();
             }
         }
