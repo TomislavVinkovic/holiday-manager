@@ -21,65 +21,72 @@ use App\Http\Controllers\VacationRequestManagementController;
 
 Auth::routes(['register' => false]);
 
+//home page
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 //user management
-Route::get('/usermanagement', [UserManagementController::class, 'index'])->name('userManagement');
-Route::get('/usermanagement/create', [UserManagementController::class, 'create'])->name('userManagement.create');
-Route::post('/usermanagement/create', [UserManagementController::class, 'store'])->name('userManagement.store');
-Route::get('/usermanagement/update/{id}', [UserManagementController::class, 'update'])->name('userManagement.update');
-Route::patch('/usermanagement/update', [UserManagementController::class, 'patch'])->name('userManagement.patch');
-Route::delete('/usermanagement', [UserManagementController::class, 'destroy'])->name('userManagement.destroy');
-
-//project management
-Route::get('/projectmanagement', [ProjectManagementController::class, 'index'])->name('projectManagement');
-Route::get('/projectmanagement/create', [ProjectManagementController::class, 'create'])->name('projectManagement.create')
-    ->middleware('superuser');
-
-Route::get('/projectmanagement/{id}', [ProjectManagementController::class, 'show'])->name('projectManagement.show');
-
-Route::post('/projectmanagement/create', [ProjectManagementController::class, 'store'])->name('projectManagement.store')
-    ->middleware('superuser');
-
-Route::get('/projectmanagement/update/{id}', [ProjectManagementController::class, 'update'])->name('projectManagement.update');
-Route::patch('/projectmanagement/update', [ProjectManagementController::class, 'patch'])->name('projectManagement.patch');
-
-// --timovi u projektu
-Route::get('projectmanagement/addteams/{id}', [ProjectManagementController::class, 'addTeams'])->name('projectManagement.addTeams'); //id je id projekta
-Route::patch('projectmanagement/addTeams', [ProjectManagementController::class, 'storeTeams'])->name('projectManagement.storeTeams');
-Route::patch('projectmanagement/removeteam', [ProjectManagementController::class, 'removeTeam'])->name('projectManagement.removeTeam');
-// --
-Route::delete('/projectmanagement', [ProjectManagementController::class, 'destroy'])->name('projectManagement.destroy')
-    ->middleware('superuser');
+Route::controller(UserManagementController::class)->group(function() {
+    Route::get('/usermanagement', 'index')->name('userManagement');
+    Route::get('/usermanagement/create', 'create')->name('userManagement.create');
+    Route::post('/usermanagement/create', 'store')->name('userManagement.store');
+    Route::get('/usermanagement/update/{id}', 'update')->name('userManagement.update');
+    Route::patch('/usermanagement/update', 'patch')->name('userManagement.patch');
+    Route::delete('/usermanagement', 'destroy')->name('userManagement.destroy');
+});
 
 
-//team management
-Route::get('/teammanagement', [TeamManagementController::class, 'index'])->name('teamManagement');
+//PROJECT MANAGEMENT
+Route::controller(ProjectManagementController::class)->group(function() {
+    Route::get('/projectmanagement', 'index')->name('projectManagement');
+    Route::get('/projectmanagement/create', 'create')->name('projectManagement.create')
+        ->middleware('superuser');
 
-Route::get('/teammanagement/create/{project_id?}', [TeamManagementController::class, 'create'])->name('teamManagement.create')
-    ->middleware('superuser');
+    Route::get('/projectmanagement/{id}', 'show')->name('projectManagement.show');
 
-Route::post('/teammanagement/create', [TeamManagementController::class, 'store'])->name('teamManagement.store')
-    ->middleware('superuser');
+    Route::post('/projectmanagement/create', 'store')->name('projectManagement.store')
+        ->middleware('superuser');
 
-Route::get('/teammanagement/update/{id}', [TeamManagementController::class, 'update'])->name('teamManagement.update');
-Route::patch('/teammanagement/update', [TeamManagementController::class, 'patch'])->name('teamManagement.patch');
+    Route::get('/projectmanagement/update/{id}', 'update')->name('projectManagement.update');
+    Route::patch('/projectmanagement/update', 'patch')->name('projectManagement.patch');
 
-Route::delete('/teammanagement', [TeamManagementController::class, 'destroy'])->name('teamManagement.destroy')
-    ->middleware('superuser');
 
-Route::patch('/teammanagement/removemember', [TeamManagementController::class, 'removeMember'])->name('teamManagement.removeMember')
-    ->middleware('superuser');
+    Route::get('projectmanagement/addteams/{id}', 'addTeams')->name('projectManagement.addTeams'); //id je id projekta
+    Route::patch('projectmanagement/addTeams', 'storeTeams')->name('projectManagement.storeTeams');
+    Route::patch('projectmanagement/removeteam', 'removeTeam')->name('projectManagement.removeTeam');
+    
+    Route::delete('/projectmanagement', 'destroy')->name('projectManagement.destroy')
+        ->middleware('superuser');
 
-Route::get('/teammanagement/{id}', [TeamManagementController::class, 'show'])->name('teamManagement.show');
+});
+
+
+//TEAM MANAGEMENT
+Route::controller(TeamManagementController::class)->group(function() {
+    Route::get('/teammanagement', 'index')->name('teamManagement');
+    Route::get('/teammanagement/create/{project_id?}', 'create')->name('teamManagement.create')
+        ->middleware('superuser');
+    Route::post('/teammanagement/create', 'store')->name('teamManagement.store')
+        ->middleware('superuser');
+    Route::get('/teammanagement/update/{id}', 'update')->name('teamManagement.update');
+    Route::patch('/teammanagement/update', 'patch')->name('teamManagement.patch');
+    Route::delete('/teammanagement', 'destroy')->name('teamManagement.destroy')
+        ->middleware('superuser');
+    Route::patch('/teammanagement/removemember', 'removeMember')->name('teamManagement.removeMember')
+        ->middleware('superuser');
+    Route::get('/teammanagement/{id}', 'show')->name('teamManagement.show');
+});
+
+
 
 
 //VACATION REQUESTS
-Route::get('/vacationrequests', [VacationRequestManagementController::class, 'index'])->name('vacationRequestManagement');
-Route::get('/vacationrequests/create', [VacationRequestManagementController::class, 'create'])->name('vacationRequestManagement.create');
-Route::post('/vacationrequests/create', [VacationRequestManagementController::class, 'store'])->name('vacationRequestManagement.store');
-Route::get('/vacationrequests/update/{id}', [VacationRequestManagementController::class, 'update'])->name('vacationRequestManagement.update');
-Route::patch('/vacationrequests/update', [VacationRequestManagementController::class, 'patch'])->name('vacationRequestManagement.patch');
-Route::delete('/vacationrequests', [VacationRequestManagementController::class, 'destroy'])->name('vacationRequestManagement.destroy');
-Route::patch('/vacationrequests/approve', [VacationRequestManagementController::class, 'approve'])->name('vacationRequestManagement.approval');
-Route::get('/vacationrequests/{id}', [VacationRequestManagementController::class, 'show'])->name('vacationRequestManagement.show');
+Route::controller(VacationRequestManagementController::class)->group(function() {
+    Route::get('/vacationrequests', 'index')->name('vacationRequestManagement');
+    Route::get('/vacationrequests/create', 'create')->name('vacationRequestManagement.create');
+    Route::post('/vacationrequests/create', 'store')->name('vacationRequestManagement.store');
+    Route::get('/vacationrequests/update/{id}', 'update')->name('vacationRequestManagement.update');
+    Route::patch('/vacationrequests/update', 'patch')->name('vacationRequestManagement.patch');
+    Route::delete('/vacationrequests', 'destroy')->name('vacationRequestManagement.destroy');
+    Route::patch('/vacationrequests/approve', 'approve')->name('vacationRequestManagement.approval');
+    Route::get('/vacationrequests/{id}', 'show')->name('vacationRequestManagement.show');
+});

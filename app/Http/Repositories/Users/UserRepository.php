@@ -2,7 +2,7 @@
 
 namespace App\Http\Repositories\Users;
 
-use App\Http\Repositories\Users\IUserRepository;
+use App\Http\Repositories\Users\UserRepositoryInterface;
 use App\Http\Requests\UserCreationRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Exception;
 use Illuminate\Support\Collection;
 
-class UserRepository implements IUserRepository {
+class UserRepository implements UserRepositoryInterface {
 
     public function getUserById(int $id, array $with = []): User {
         return User::where('id', $id)->with($with)->firstOrFail();
@@ -59,25 +59,28 @@ class UserRepository implements IUserRepository {
 
         try {
             $user = $this->getUserById($request->id);
-            $user->update(
-                [
-                    'username' => $request->username,
-                    'email' => $request->email,
-                    'oib' => $request->oib,
-                    'first_name' => $request->first_name,
-                    'last_name' => $request->last_name,
-                    'residence' => $request->residence,
-                    'date_of_birth' => $request->date_of_birth,
-                ]
-            );
+            $requestData =  [
+                'username' => $request->username,
+                'email' => $request->email,
+                'oib' => $request->oib,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'residence' => $request->residence,
+                'date_of_birth' => $request->date_of_birth,
+            ];
+            $user->fill($requestData);
+            if($user->isDirty()) {
+                $user->update();
+            }
 
-            //obrisi sve role veze koji postoje, a nisu u novom requestu
+            //delete all roles that are saved, but not in the new request
             foreach($user->roles as $role) {
                 if(!in_array($role->id, $request->roles)) {
                     $user->roles()->detach($role->id);
                 }
             }
 
+            //add all the new roles
             $user->roles()->attach($request->roles);
             $user->save();
 

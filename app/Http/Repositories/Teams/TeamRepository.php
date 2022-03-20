@@ -4,20 +4,20 @@ namespace App\Http\Repositories\Teams;
 
 use App\Http\Requests\TeamCreateRequest;
 use App\Http\Requests\TeamUpdateRequest;
-use App\Http\Repositories\Teams\ITeamRepository;
-use App\Http\Repositories\Users\IUserRepository;
+use App\Http\Repositories\Teams\TeamRepositoryInterface;
+use App\Http\Repositories\Users\UserRepositoryInterface;
 use App\Models\Team;
-use App\Http\Repositories\Images\AbsImageRepository;
+use App\Http\Repositories\Images\ImageRepositoryInterface;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
 use Exception;
 
-class TeamRepository implements ITeamRepository {
+class TeamRepository implements TeamRepositoryInterface {
 
     public function __construct(
-        protected AbsImageRepository $imageRepository,
-        protected IUserRepository $userRepository
+        protected ImageRepositoryInterface $imageRepository,
+        protected UserRepositoryInterface $userRepository
     ) {}
 
     public function getTeamById(int $id, array $with = []): Team {
@@ -30,14 +30,12 @@ class TeamRepository implements ITeamRepository {
         }
     }
 
-    public function getTeams(): Collection {
-        if(Auth::user()->is_superuser) {
-            return Team::all();
-        }
-        else {
-            $teams = Team::where('lead_id', Auth::user()->id)->get();
-            return $teams;
-        }
+    public function getTeamsForSuperUser(): Collection {
+        return Team::all();
+    }
+
+    public function getTeamsForLead(): Collection {
+        return Team::where('lead_id', Auth::user()->id)->get();
     }
 
     public function getTeamsNotInProject(Project $project) {
@@ -92,10 +90,11 @@ class TeamRepository implements ITeamRepository {
         try {
             
             $team = $this->getTeamById($request->id, ['users', 'logo']);
-            $team->update([
-                'name' => $request->name,
-                'description' => $request->description
-            ]);
+            $team->name = $request->name;
+            $team->description = $request->description;
+            if($team->isDirty()) {
+                $team->update();
+            }
 
             if((int)$request->lead !== $team->lead_id) {
                 if(!$team->users->contains($request->lead)) {
@@ -111,9 +110,7 @@ class TeamRepository implements ITeamRepository {
             if($request->logo !== null) {
                 $newLogo = $this->imageRepository->updateImage($request->logo, $team->logo_id);
                 $team->logo_id = $newLogo->id;
-                $team->save();
             }
-
             $team->save();
 
             return $team->id;

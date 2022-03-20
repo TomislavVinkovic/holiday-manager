@@ -11,11 +11,11 @@ class AppServiceProvider extends ServiceProvider
 {   
 
     public function register() {
-        $this->app->bind('App\Http\Repositories\Users\IUserRepository', 'App\Http\Repositories\Users\UserRepository');
-        $this->app->bind('App\Http\Repositories\Teams\ITeamRepository', 'App\Http\Repositories\Teams\TeamRepository');
-        $this->app->bind('App\Http\Repositories\Projects\IProjectRepository', 'App\Http\Repositories\Projects\ProjectRepository');
-        $this->app->bind('App\Http\Repositories\Images\AbsImageRepository', 'App\Http\Repositories\Images\ImageRepository');
-        $this->app->bind('App\Http\Repositories\VacationRequests\IVacationRequestRepository', 'App\Http\Repositories\VacationRequests\VacationRequestRepository');
+        $this->app->bind('App\Http\Repositories\Users\UserRepositoryInterface', 'App\Http\Repositories\Users\UserRepository');
+        $this->app->bind('App\Http\Repositories\Teams\TeamRepositoryInterface', 'App\Http\Repositories\Teams\TeamRepository');
+        $this->app->bind('App\Http\Repositories\Projects\ProjectRepositoryInterface', 'App\Http\Repositories\Projects\ProjectRepository');
+        $this->app->bind('App\Http\Repositories\Images\ImageRepositoryInterface', 'App\Http\Repositories\Images\ImageRepository');
+        $this->app->bind('App\Http\Repositories\VacationRequests\VacationRequestRepositoryInterface', 'App\Http\Repositories\VacationRequests\VacationRequestRepository');
     }
 
     private function and($b1, $b2) {

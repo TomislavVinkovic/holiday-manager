@@ -5,26 +5,28 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\TeamCreateRequest;
 use App\Http\Requests\TeamUpdateRequest;
-use App\Http\Repositories\Teams\ITeamRepository;
-use App\Http\Repositories\Users\IUserRepository;
-use App\Http\Repositories\Projects\IProjectRepository;
-use App\Models\Project;
-use App\Models\User;
+use App\Http\Repositories\Projects\ProjectRepositoryInterface;
+use App\Http\Repositories\Teams\TeamRepositoryInterface;
+use App\Http\Repositories\Users\UserRepositoryInterface;
 use App\Http\Requests\DeleteTeamProjectRequest;
+use Illuminate\Support\Facades\Auth;
 
 
 class TeamManagementController extends Controller
 {   
     public function __construct(
-        protected ITeamRepository $teamRepository,
-        protected IUserRepository $userRepository,
-        protected IProjectRepository $projectRepository
+        protected TeamRepositoryInterface $teamRepository,
+        protected UserRepositoryInterface $userRepository,
+        protected ProjectRepositoryInterface $projectRepository
     ) {
         $this->middleware('auth');
     }
 
     public function index() {
-        $teams = $this->teamRepository->getTeams();
+        if(Auth::user()->is_superuser) {
+            $teams = $this->teamRepository->getTeamsForSuperUser();
+        }
+        else $teams = $this->teamRepository->getTeamsForLead();
         return view('teamManagement.index', ['teams' => $teams]);
     }
 

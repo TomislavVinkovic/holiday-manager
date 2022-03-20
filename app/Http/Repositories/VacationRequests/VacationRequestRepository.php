@@ -2,17 +2,16 @@
 
 namespace App\Http\Repositories\VacationRequests;
 
-use App\Http\Repositories\VacationRequests\IVacationRequestRepository;
+use App\Http\Repositories\VacationRequests\VacationRequestRepositoryInterface;
 use App\Models\VacationRequest;
 use App\Http\Requests\CreateVacationRequestRequest;
-use App\Http\Requests\UpdateVacationRequestRequest;
 use App\Http\Requests\VacationRequestApprovalRequest;
 use Exception;
 use App\Models\VacationRequestApproval;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 
-class VacationRequestRepository implements IVacationRequestRepository {
+class VacationRequestRepository implements VacationRequestRepositoryInterface {
 
     public function getVacationRequestById(int $id): VacationRequest{
         try {
@@ -107,15 +106,6 @@ class VacationRequestRepository implements IVacationRequestRepository {
         }
 
         return $vacationRequest;
-
-    }
-
-    public function patchVacationRequest(UpdateVacationRequestRequest $request): VacationRequest{
-        throw new Exception('Not implemented yet');
-    }
-
-    public function destroyVacationRequest(int $id): void{
-        throw new Exception('Not implemented yet');
     }
 
     public function approveVacationRequest(VacationRequestApprovalRequest $request): void{
@@ -132,13 +122,10 @@ class VacationRequestRepository implements IVacationRequestRepository {
         if($request->approved) {
             $vacationRequestApproval->approved = true;
             $vacationRequestApproval->pending = false;
-            $vacationRequestApproval->save();
-            $vacationRequest->save();
-
+            
             //if there are no requests left to approve
             if($vacationRequest->approvals->where('approved', false)->isEmpty()) {
                 $vacationRequest->approved = true;
-                $vacationRequest->save();
 
                 $start_date = Carbon::create($vacationRequest->start_date);
                 $end_date = Carbon::create($vacationRequest->end_date);
@@ -147,9 +134,10 @@ class VacationRequestRepository implements IVacationRequestRepository {
                 }, $end_date);
 
                 $vacationRequest->user->available_vacation_days -= $diff;
-                $vacationRequest->user->save();
-                $vacationRequest->save();
+                //$vacationRequest->user->save();
             }
+            $vacationRequestApproval->save();
+            $vacationRequest->push();
         }
         //else, if the lead declined the request
         else {
@@ -161,5 +149,4 @@ class VacationRequestRepository implements IVacationRequestRepository {
             $vacationRequest->save();
         }
     }
-
 }

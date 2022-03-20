@@ -1,17 +1,18 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use App\Http\Repositories\VacationRequests\IVacationRequestRepository;
+use App\Http\Repositories\VacationRequests\VacationRequestRepositoryInterface;
 use App\Http\Requests\CreateVacationRequestRequest;
 use App\Http\Requests\VacationRequestApprovalRequest;
 use App\Http\Requests\UpdateVacationRequestRequest;
-use Illuminate\Support\Facades\Auth;
 
 class VacationRequestManagementController extends Controller {
     
-    public function __construct(protected IVacationRequestRepository $vacationRequestRepository) {}
+    public function __construct(
+        protected VacationRequestRepositoryInterface $vacationRequestRepository
+    ) {
+        $this->middleware('notsuperuser');
+    }
 
     public function index() {
         $vacationRequests = $this->vacationRequestRepository->getVacationRequests();
@@ -34,18 +35,6 @@ class VacationRequestManagementController extends Controller {
         $validated = $request->validated();
         $vacationRequest = $this->vacationRequestRepository->createVacationRequest($request);
         return redirect(route('vacationRequestManagement.show', $vacationRequest->id));
-    }
-
-    public function update($id) {
-        return;
-    }
-
-    public function patch() {
-        return;
-    }
-
-    public function destroy() {
-        return;
     }
 
     public function approve(VacationRequestApprovalRequest $request) {

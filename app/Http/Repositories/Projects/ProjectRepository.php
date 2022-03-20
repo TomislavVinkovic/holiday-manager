@@ -1,22 +1,18 @@
 <?php
 
 namespace App\Http\Repositories\Projects;
-
-use App\Http\Repositories\Projects\IProjectRepository;
 use App\Http\Requests\ProjectCreateRequest;
 use App\Http\Requests\ProjectUpdateRequest;
-use App\Http\Repositories\Images\AbsImageRepository;
+use App\Http\Repositories\Projects\ProjectRepositoryInterface;
+use App\Http\Repositories\Images\ImageRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 use Exception;
 use App\Models\Project;
+use Illuminate\Support\Collection;
 
-class ProjectRepository implements IProjectRepository {
-    
-    protected $imageRepository;
+class ProjectRepository implements ProjectRepositoryInterface {
 
-    public function __construct(AbsImageRepository $imageRepository) {
-        $this->imageRepository = $imageRepository;
-    }
+    public function __construct(protected ImageRepositoryInterface $imageRepository) {}
 
     public function getProjectById(int $id, array $with = []) {
         $project = Project::where('id', $id)->with($with)->firstOrFail();
@@ -28,14 +24,12 @@ class ProjectRepository implements IProjectRepository {
         }
     }
 
-    public function getProjects() {
-        if(Auth::user()->is_superuser) {
-            return Project::all();
-        }
-        else {
-            $teams = Project::where('lead_id', Auth::user()->id)->get();
-            return $teams;
-        }
+    public function getProjectsForSuperUser(): Collection {
+        return Project::all();
+    }
+
+    public function getProjectsForlead(): Collection {
+        return Project::where('lead_id', Auth::user()->id)->get();
     }
 
     public function createProject(ProjectCreateRequest $request): Project {
@@ -59,11 +53,15 @@ class ProjectRepository implements IProjectRepository {
 
         try {
             $project = $this->getProjectById($request->id, ['logo']);
-            $project->update([
-                'name' => $request->name,
-                'description' => $request->description,
-                'lead_id' => $request->lead
-            ]);
+
+            $project->name = $request->name;
+            $project->description =  $request->description;
+            $project->lead_id = $request->lead;
+            
+            if($project->isDirty()) {
+                $project->update();
+            }
+
             if($request->logo !== null) {
                 $newLogo = $this->imageRepository->updateImage($request->logo, $project->logo_id);
                 $project->logo_id = $newLogo->id;

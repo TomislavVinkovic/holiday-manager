@@ -3,17 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\UserCreationRequest;
 use App\Http\Requests\UserUpdateRequest;
-use App\Http\Repositories\Users\IUserRepository;
+use App\Http\Repositories\Users\UserRepositoryInterface;
 use App\Models\Role;
 
 class UserManagementController extends Controller
 {
 
-    public function __construct(protected IUserRepository $userRepository) {
+    public function __construct(protected UserRepositoryInterface $userRepository) {
         $this->middleware('auth');
         $this->middleware('superuser');
     }

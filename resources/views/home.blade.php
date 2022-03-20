@@ -4,108 +4,61 @@
 <div class="container">
     <div class="row p-10">
 
-        <!-- DIZAJN CU FIXAT KASNIJE -->
-        @if (Auth::user()->is_superuser)
+        <ul class="list-group">
+            @if (Auth::user()->is_superuser)
+                <li class="list-group-item">
+                    <a class="card-url h3" href="{{ route('userManagement') }}"> User management </a>
+                    <i class="fa-solid fa-user-group card-icon p-3"></i>
+                </li> 
+
+                <li class="list-group-item">
+                    <a class="card-url h3" href="{{ route('projectManagement') }}"> Project management </a>
+                    <i class="fa-solid fa-diagram-project card-icon p-3"></i>
+                </li> 
+
+                <li class="list-group-item">
+                    <a class="card-url h3" href="{{ route('teamManagement') }}"> Project management </a>
+                    <i class="fa-solid fa-users card-icon p-3"></i>
+                </li> 
+            @endif
+
+            @if (!$teams->isEmpty())
+                <li class="list-group-item">
+                    <a class="card-url h3" href="{{ route('teamManagement') }}"> My teams </a>
+                    <i class="fa-solid fa-users card-icon p-3"></i>
+                </li> 
+            @endif
+
+            @if (!$projects->isEmpty())
+                <li class="list-group-item">
+                    <a class="card-url h3" href="{{ route('projectManagement') }}"> My projects </a>
+                    <i class="fa-solid fa-users card-icon p-3"></i>
+                </li> 
+            @endif
+
+            @if (!$projects->isEmpty() || !$teams->isEmpty())
+                <li class="list-group-item">
+                    <a class="card-url h3" href="{{ route('vacationRequestManagement') }}"> Vacation requests </a>
+                    <i class="fa-solid fa-umbrella-beach card-icon p-3"></i>
+                </li> 
+            @endif
             
-            <div class="col-sm-12 col-md-3 mt-5">
-                <a class="card-url" href="{{ route('userManagement') }}">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="card-body text-center">
-                                <i class="fa-solid fa-user-group card-icon p-5"></i>
-                                <p class="h3">User management</p>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
+            @if ($projects->isEmpty() && $teams->isEmpty() && !Auth::user()->is_superuser)
+                <li class="list-group-item">
+                    <a class="card-url h3" href="{{ route('vacationRequestManagement.create') }}">New vacation request</a>
+                    <i class="fa-solid fa-plus card-icon p-3"></i>
+                </li>
+                
+                <li class="list-group-item">
+                    <a class="card-url h3" href="{{ route('vacationRequestManagement') }}">My vacation requests</a>
+                    <i class="fa-solid fa-umbrella-beach card-icon p-3"></i>
+                </li>
+                
+            @endif
 
-            <div class="col-sm-12 col-md-3 mt-5">
-                <a class="card-url" href="{{ route('projectManagement') }}">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="card-body text-center">
-                                <i class="fa-solid fa-diagram-project card-icon p-5"></i>
-                                <p class="h3">Project management</p>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <div class="col-sm-12 col-md-3 mt-5">
-                <a class="card-url" href="{{ route('teamManagement') }}">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="card-body text-center">
-                                <i class="fa-solid fa-users card-icon p-5"></i>
-                                <p class="h3">Team management</p>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-        @endif
-        
-        @if (!$teams->isEmpty())
-            
-            <div class="col-md-1 col-sm-12"></div>
-            
-            <div class="col-sm-12 col-md-3 mt-5">
-                <a class="card-url" href="{{ route('teamManagement') }}">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="card-body text-center">
-                                <i class="fa-solid fa-user-group card-icon p-5"></i>
-                                <p class="h3">My teams</p>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-        @endif
-        
-        @if (!$projects->isEmpty())
-            <div class="col-md-1 col-sm-12"></div>
-
-            <div class="col-sm-12 col-md-3 mt-5">
-                <a class="card-url" href="{{ route('projectManagement') }}">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="card-body text-center">
-                                <i class="fa-solid fa-diagram-project card-icon p-5"></i>
-                                <p class="h3">My projects</p>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        @endif
+        </ul>
     </div>
-
-    @if (!$projects->isEmpty() || !$teams->isEmpty())
-        <div class="row p-10">
-            <div class="col-sm-12 col-md-3 mt-5">
-                <a class="card-url" href="{{ route('vacationRequestManagement') }}">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="card-body text-center">
-                                <i class="fa-solid fa-umbrella-beach card-icon p-5"></i>
-                                <p class="h3">Vacation requests</p>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-    @endif
-
-    @if ($projects->isEmpty())
-        <a href="{{ route('vacationRequestManagement.create') }}">I want to go on vacation please!</a><br />
-        <a href="{{ route('vacationRequestManagement') }}">My vacation requests</a>
-    @endif
+    
 
 </div>
 @endsection

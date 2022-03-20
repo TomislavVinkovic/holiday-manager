@@ -7,7 +7,7 @@ use App\Http\Requests\UserUpdateRequest;
 use Illuminate\Support\Collection;
 use App\Models\User;
 
-interface IUserRepository {
+interface UserRepositoryInterface {
     public function getUserById(int $id, array $with = []): User;
     public function getAllNonSuperUsers(): Collection;
     public function getUsersWithNoTeam(array $with = []): Collection;

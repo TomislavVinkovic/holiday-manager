@@ -4,10 +4,10 @@ namespace App\Http\Repositories\Images;
 
 use App\Models\Image;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Repositories\Images\AbsImageRepository;
+use App\Http\Repositories\Images\AbstractImageRepository;
 use Exception;
 
-class ImageRepository extends AbsImageRepository {
+class ImageRepository extends AbstractImageRepository {
 
     public function createImage($file, $path = ''): Image {
         try {
