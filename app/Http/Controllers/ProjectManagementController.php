@@ -11,6 +11,8 @@ use App\Http\Requests\ProjectRemoveTeamRequest;
 use App\Http\Requests\ProjectUpdateRequest;
 use App\Http\Requests\DeleteTeamProjectRequest;
 use Illuminate\Support\Facades\Auth;
+use App\Exceptions\DisallowedDeletionException;
+use Illuminate\Http\Response;
 
 class ProjectManagementController extends Controller
 {
@@ -87,7 +89,15 @@ class ProjectManagementController extends Controller
 
     public function removeTeam(ProjectRemoveTeamRequest $request) {
         $valdiated = $request->validated();
-        $this->projectRepository->removeTeamFromProject($request->project_id, $request->team_id);
-        return redirect(route('projectManagement.show', $request->project_id));
+        try {
+            $this->projectRepository->removeTeamFromProject($request->project_id, $request->team_id);
+            return response([
+                'removed_team' => $request->team_id
+            ], 200);
+        } catch(DisallowedDeletionException $e) {
+            return response([
+                'error_message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

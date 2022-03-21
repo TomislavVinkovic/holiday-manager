@@ -4,8 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
+use Cmixin\BusinessDay;
 
 class AppServiceProvider extends ServiceProvider
 {   
@@ -24,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot() {
 
+        BusinessDay::enable('Illuminate\Support\Carbon');
+        
         Validator::extend('integer_array', function ($attribute, $arr, $parameters, $validator) {
             if (array_reduce(array_map('is_numeric', $arr), 'self::and' , True) == False) return false;
             else {

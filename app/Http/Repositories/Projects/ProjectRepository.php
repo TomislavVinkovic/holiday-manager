@@ -6,7 +6,7 @@ use App\Http\Requests\ProjectUpdateRequest;
 use App\Http\Repositories\Projects\ProjectRepositoryInterface;
 use App\Http\Repositories\Images\ImageRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
-use Exception;
+use App\Exceptions\DisallowedDeletionException;
 use App\Models\Project;
 use Illuminate\Support\Collection;
 
@@ -33,81 +33,61 @@ class ProjectRepository implements ProjectRepositoryInterface {
     }
 
     public function createProject(ProjectCreateRequest $request): Project {
-        try {
-            $logo = $this->imageRepository->createImage($request->logo);
-            $project = Project::create([
-                'name' => $request->name,
-                'description' => $request->description,
-                'lead_id' => $request->lead,
-                'logo_id' => $logo->id
-            ]);
-            return $project;
+        $logo = $this->imageRepository->createImage($request->logo);
+        $project = Project::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'lead_id' => $request->lead,
+            'logo_id' => $logo->id
+        ]);
+        return $project;
 
-        } catch(Exception $e) {
-            throw $e;
-        }
         
     }
 
     public function patchProject(ProjectUpdateRequest $request): int {
 
-        try {
-            $project = $this->getProjectById($request->id, ['logo']);
+        $project = $this->getProjectById($request->id, ['logo']);
 
-            $project->name = $request->name;
-            $project->description =  $request->description;
-            $project->lead_id = $request->lead;
-            
-            if($project->isDirty()) {
-                $project->update();
-            }
-
-            if($request->logo !== null) {
-                $newLogo = $this->imageRepository->updateImage($request->logo, $project->logo_id);
-                $project->logo_id = $newLogo->id;
-                $project->save();
-            }
-
-            return $project->id;
-
-        } catch(Exception $e) {
-            throw $e;
+        $project->name = $request->name;
+        $project->description =  $request->description;
+        $project->lead_id = $request->lead;
+        
+        if($project->isDirty()) {
+            $project->update();
         }
 
+        if($request->logo !== null) {
+            $newLogo = $this->imageRepository->updateImage($request->logo, $project->logo_id);
+            $project->logo_id = $newLogo->id;
+            $project->save();
+        }
+
+        return $project->id;
         
     }
 
     public function destroyProject(int $id): void {
-
-        try {
-            $project = $this->getProjectById($id);
-            $this->imageRepository->destroyImage($project->logo_id);
-            $project->delete();
-
-        } catch(Exception $e) {
-            
-            throw $e;
-        }
+        $project = $this->getProjectById($id);
+        $this->imageRepository->destroyImage($project->logo_id);
+        $project->delete();
     }
 
     public function addTeamsToProject(int $project_id, array $teams): void {
-        try {
-            $project = $this->getProjectById($project_id);
-            $project->teams()->attach($teams);
-            $project->save();
-        } catch (Exception $e) {
-            throw $e;
-        }
+        $project = $this->getProjectById($project_id);
+        $project->teams()->attach($teams);
+        $project->save();
         
     }
 
     public function removeTeamFromProject(int $project_id, int $team_id): void {
-        try {
-            $project = $this->getProjectById($project_id);
-            $project->teams()->detach($team_id);
-            $project->save();
-        } catch (Exception $e) {
-            throw $e;
+        //test example
+        $path = explode('\\', Team::class); //puno ime klase, da kasnije mogu dobiti skracenu verziju
+        if($team_id === 7) {
+            throw new DisallowedDeletionException(array_pop($path));
         }
+        $project = $this->getProjectById($project_id);
+        $project->teams()->detach($team_id);
+        $project->save();
     }
 }

@@ -49,18 +49,9 @@
                         <li class="list-group-item"> This project currently has no teams assigned to it</li>
                     @else
                         @foreach ($project->teams as $team)
-                            <li class="list-group-item">
-                                 {{ $team->name }}
-                                 <form action="{{ route('projectManagement.removeTeam') }}" method="post" class="d-inline-block" style="margin-left: 10px;">
-                                     @csrf
-                                     @method('PATCH')
-
-                                    <input type="hidden" value="{{ $team->id }}" name="team_id">
-                                    <input type="hidden" value="{{ $project->id }}" name="project_id">
-
-                                    <button type="submit" class="btn btn-danger"> <i class="fa-solid fa-trash" style="color: white"></i> </button>
-
-                                 </form>
+                            <li class="list-group-item" id="{{ $team->id }}">
+                                {{ $team->name }}
+                                <button onclick="deleteTeam({{ $team->id }}, {{ $project->id }})" type="submit" class="d-inline-block btn btn-danger"> <i class="fa-solid fa-trash" style="color: white"></i> </button>
                             </li>
                         @endforeach
                     @endif
@@ -82,5 +73,27 @@
 
     </div>
     
+@endsection
 
+@section('scripts')
+    <script>
+        function deleteTeam(teamId, projectId) {
+            $.ajax({
+                url: "{{ route('projectManagement.removeTeam') }}",
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'project_id': projectId,
+                    'team_id': teamId
+                },
+                type: "PATCH",
+                success: function(data) {
+                    console.log(data);
+                    document.getElementById(data.removed_team).remove()
+                },
+                error: function(data){
+                    alert(data.responseJSON.error_message);
+                }
+            });
+        }
+    </script>
 @endsection

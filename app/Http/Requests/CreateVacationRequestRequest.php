@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\MaxDateDiff;
+use App\Rules\NoWeekendsAndHolidays;
 
 class CreateVacationRequestRequest extends FormRequest
 {
@@ -17,8 +18,8 @@ class CreateVacationRequestRequest extends FormRequest
     public function rules()
     {
         return [
-            'startDate' => ['required', 'date', new MaxDateDiff],
-            'endDate' => ['required', 'date', 'after:startDate'],
+            'startDate' => ['required', 'date', 'after:today',  new MaxDateDiff, new NoWeekendsAndHolidays],
+            'endDate' => ['required', 'date', 'after:today' , 'after:startDate', new NoWeekendsAndHolidays],
             'description' => ['required', 'string']
         ];
     }

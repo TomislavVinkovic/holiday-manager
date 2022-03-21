@@ -17,7 +17,7 @@
                 </li> 
 
                 <li class="list-group-item">
-                    <a class="card-url h3" href="{{ route('teamManagement') }}"> Project management </a>
+                    <a class="card-url h3" href="{{ route('teamManagement') }}"> Team management </a>
                     <i class="fa-solid fa-users card-icon p-3"></i>
                 </li> 
             @endif
@@ -58,7 +58,5 @@
 
         </ul>
     </div>
-    
-
 </div>
 @endsection

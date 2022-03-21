@@ -14,12 +14,12 @@
                     @csrf
                     <div class="mb-3">
                         <label for="startDate" class="form-label">Start date</label>
-                        <input name="startDate" type="date" min="{{ $min_start_date }}" class="form-control" id="startDate" required />
+                        <input name="startDate" type="date" class="form-control" id="startDate" required />
                     </div>
 
                     <div class="mb-3">
                         <label for="endDate" class="form-label">End date</label>
-                        <input name="endDate" type="date"min="{{ $min_end_date }}" class="form-control" id="endDate" required />
+                        <input name="endDate" type="date" class="form-control" id="endDate" required />
                     </div>
 
                     <div class="mb-3">
