@@ -10,6 +10,7 @@ use App\Models\User;
 interface UserRepositoryInterface {
     public function getUserById(int $id, array $with = []): User;
     public function getAllNonSuperUsers(): Collection;
+    public function addVacationDays(int $days, ?int $user_id=null): void;
     public function getUsersWithNoTeam(array $with = []): Collection;
     public function getMaxId(): int;
     public function createUserWithRoles(UserCreationRequest $request): User;

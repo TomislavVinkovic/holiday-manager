@@ -80,6 +80,17 @@ class UserRepository implements UserRepositoryInterface {
 
     }
 
+    public function addVacationDays(int $days, ?int $user_id = null) : void{
+        if($user_id === null) {
+            User::query()->increment('available_vacation_days', 20);
+        }
+        else {
+            $user = User::findOrFail($user_id);
+            $user->vacation_days = $user->available_vacation_days + 20;
+            $user->save();
+        }
+    }
+
     public function destroyUserById(int $id): void {
         $user = $this->getUserById($id);
         $user->roles()->detach();
